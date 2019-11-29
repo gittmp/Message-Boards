@@ -1,0 +1,1 @@
+this is to test the response to content and location being printed in server terminal
