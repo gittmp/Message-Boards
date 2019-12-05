@@ -200,9 +200,9 @@ class threadClient(threading.Thread):
                             
                         print("Added message: ", messageContent)
                         print("To location: ", messagePath)
+                        self.connSock.send(responseOK.encode())
                         logInfo.append("OK")
-                        self.connSock.send(str(responseOK).encode())
-
+                    
                     else:
                         errorType = "Error: message not posted"
                         self.connSock.send(errorType.encode())
@@ -261,8 +261,7 @@ except OSError:
 while True:
 
     #listen for incomming connections from client to server
-    serverSocket.listen(10)
-    print("Server listening...")
+    serverSocket.listen(1)
 
     #accept connection
     connectionSocket, addr = serverSocket.accept()

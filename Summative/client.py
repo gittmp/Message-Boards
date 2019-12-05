@@ -33,9 +33,10 @@ while True:
     if request.isdigit() == True:
         request = "GET_MESSAGES(" + request + ")"
 
-    #send the request to the sever, and retrieve what it sends back
+    #send the request to the sever, and retrieve what it sends back (timeout if waits longer than 10s)
     clientSocket.send(request.encode())
-    clientSocket.settimeout(10)
+
+    clientSocket.settimeout(10.0)
     datas = eval(clientSocket.recv(2048).decode())
     clientSocket.settimeout(None)
 
@@ -60,8 +61,7 @@ while True:
             
         else:
 
-            #if the request has not been handled OK, return the error to the client
-            print(response)
+            #if the request erroneous, break connection
             break
 
     elif "GET_MESSAGES" in request:
@@ -69,14 +69,18 @@ while True:
 
             #for each message provided by the server, return the title and content of each to the client's terminal
             messages = content
-            print("Messages: ")
+            print("MESSAGES: ")
             for item in messages:
-                print("Message Title: " + item.split(":")[0].replace(".txt", ""))
-                print("Content: " + item.split(":")[1] + "\n")
+                displayInfo = item.split(":")
+                displayDatetime = displayInfo[0][:14].replace("-", " ")
+                displayTitle = displayInfo[0][16:].replace("_", " ").replace(".txt", "")
+                displayContent = displayInfo[1]
+                print("Message date/time: " + displayDatetime)
+                print("Message title: " + displayTitle)
+                print("Content: " + displayContent + "\n")
 
         else:
-            
-            print(response)
+            #if the request erroneous, request new input
             continue
 
     elif request == "POST":
@@ -91,11 +95,11 @@ while True:
             #send this info to the server, replacing spaces in the message title with underscores
             messageInfo = [inputNo, messageTitle.replace(" ", "_"), messageContent]
             clientSocket.send(str(messageInfo).encode())
-            print("Success: message posted to board " + str(inputNo))
-
-        else:
-            
-            print(response)
+            outcome = clientSocket.recv(2048).decode()
+            if outcome == "OK":
+                print("Success: message posted to board " + str(inputNo) + "\n")
+            else:
+                print(outcome)
         
     elif request == "QUIT" and response == "OK":
 
@@ -105,6 +109,5 @@ while True:
 
     else:
 
-        #if any other attempt at a request is inputted, return an error
-        print("Error: request invalid")
+        #if any other attempt at a request is inputted, ask for new input
         continue
