@@ -264,7 +264,11 @@ while True:
     serverSocket.listen(1)
 
     #accept connection
-    connectionSocket, addr = serverSocket.accept()
+    try:
+        connectionSocket, addr = serverSocket.accept()
+    except KeyboardInterrupt:
+        print("Interrupt recognised: server disconnecting...")
+        sys.exit()
 
     #create new thread to run connection on
     threadIt = threadClient(addr, connectionSocket)
